@@ -1,0 +1,51 @@
+pip3 install torch torchvision torchaudio << cpu사용옵션으로 파이토치 설치
+pip install torchtune
+
+
+tune download meta-llama/Llama-2-7b-hf \
+--output-dir /tmp/Llama-2-7b-hf \
+
+tune download meta-llama/Meta-Llama-3-8B \
+--output-dir /tmp/Meta-Llama-3-8B \
+
+git clone https://github.com/meta-llama/llama.git
+llama2 클론하기
+cd llama
+pip install -e . < 필요한 의존성 설치
+chmod +x download.sh
+./download.sh
+<< 다운로드 스크립트를 실행하여 모델을 다운 > 이메일로 받은 url입력하라는 프롬프트표시
+
+엔터치고 다운로드함
+
+
+엘라마 3평가하는거
+# Config for EleutherEvalRecipe in eleuther_eval.py
+#
+# To launch, run the following command from root torchtune directory:
+#    tune run eleuther_eval --config eleuther_evaluation tasks=["truthfulqa_mc2","hellaswag"]
+
+# Model Arguments
+model:
+  _component_: torchtune.models.llama3.llama3_8b
+
+checkpointer:
+  _component_: torchtune.utils.FullModelMetaCheckpointer
+  checkpoint_dir: /tmp/Meta-Llama-3-8B/original/
+  checkpoint_files: [
+    consolidated.00.pth
+  ]
+  output_dir: /tmp/Meta-Llama-3-8B/
+  model_type: LLAMA3
+
+tokenizer:
+  _component_: torchtune.models.llama3.llama3_tokenizer
+  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+
+device: cuda
+dtype: bf16
+seed: 217
+tasks: ["truthfulqa_mc2"]
+limit: null
+max_seq_length: 4096
+quantizer: null
